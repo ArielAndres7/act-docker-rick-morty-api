@@ -1,8 +1,8 @@
-/*module.exports = {
+module.exports = {
     database: {
         host: 'localhost',
         user: 'root',
-        password: 'mysql',
-        database: 'itesm502'
+        password: 'N',
+        database: 'itesm503'
     }
-}*/
+}

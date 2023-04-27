@@ -41,40 +41,40 @@ router.get('/signup', isNotLoggedIn, (req, res) => {
     }
 });*/
 
-router.post('/signup', isNotLoggedIn, async (req, res, next) => {
+router.post('/signup', isNotLoggedIn, async(req, res, next) => {
     const { username, password, confirm_password } = req.body;
     if (password !== confirm_password) {
-      req.flash('message', 'Las contraseñas no coinciden');
-      res.redirect('/signup');
+        req.flash('message', 'Las contraseñas no coinciden');
+        res.redirect('/signup');
     } else {
-      try {
-        const hashedPassword = await encryptPassword(password);
-        const newUser = {
-          username,
-          password: hashedPassword,
-        };
-        pool.query('INSERT INTO user SET ?', newUser)
-          .then((result) => {
-            newUser.id = result.insertId;
-            req.login(newUser, (err) => {
-              if (err) {
-                return next(err);
-              }
-              return res.redirect('/profile');
-            });
-          })
-          .catch((err) => {
-            if (err.code === 'ER_DUP_ENTRY') {
-              req.flash('message', 'El usuario ya existe');
-            } else {
-              console.log(err);
-            }
+        try {
+            const hashedPassword = await encryptPassword(password);
+            const newUser = {
+                username,
+                password: hashedPassword,
+            };
+            pool.query('INSERT INTO user SET ?', newUser)
+                .then((result) => {
+                    newUser.id = result.insertId;
+                    req.login(newUser, (err) => {
+                        if (err) {
+                            return next(err);
+                        }
+                        return res.redirect('/profile');
+                    });
+                })
+                .catch((err) => {
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        req.flash('message', 'El usuario ya existe');
+                    } else {
+                        console.log(err);
+                    }
+                    return res.redirect('/signup');
+                });
+        } catch (err) {
+            console.log(err);
             return res.redirect('/signup');
-          });
-      } catch (err) {
-        console.log(err);
-        return res.redirect('/signup');
-      }
+        }
     }
 });
 
@@ -117,7 +117,7 @@ router.get('/logout', isLoggedIn, (req, res) => {
 });
 
 
-router.post('/change-password', isLoggedIn, async (req, res) => {
+router.post('/change-password', isLoggedIn, async(req, res) => {
     const { newPassword, repeatPassword } = req.body;
     if (newPassword !== repeatPassword) {
         req.flash('message', 'Las contraseñas no coinciden');
@@ -126,7 +126,7 @@ router.post('/change-password', isLoggedIn, async (req, res) => {
         const newUser = {
             password: await encryptPassword(newPassword)
         }
-        await pool.query('UPDATE User set ? WHERE id = ?', [newUser, req.user.id])
+        await pool.query('UPDATE user set ? WHERE id = ?', [newUser, req.user.id])
         req.flash('success', 'Contraseña actualizada correctamente');
         res.redirect('/profile')
     }
